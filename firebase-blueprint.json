@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "Synthesis": {
+      "title": "Synthesis",
+      "description": "A multimodal synthesis record.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who created the synthesis."
+        },
+        "prompt": {
+          "type": "string",
+          "description": "The original prompt used for synthesis."
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["concept", "visual", "sonic", "kinetic", "harmonic"],
+          "description": "The synthesis mode."
+        },
+        "result": {
+          "type": "string",
+          "description": "The result of the synthesis (text, image URL, video URL, or audio URL)."
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Additional metadata (e.g., grounding links, parameters)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of creation."
+        }
+      },
+      "required": ["userId", "prompt", "mode", "result", "createdAt"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User-specific settings and aesthetic profiles.",
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "aestheticProfile": {
+          "type": "object",
+          "description": "Custom aesthetic settings (e.g., color palette, default parameters)."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of the last update."
+        }
+      },
+      "required": ["displayName", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/syntheses/{synthesisId}": {
+      "schema": "Synthesis",
+      "description": "A collection of syntheses created by a specific user."
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "The user's profile document."
+    }
+  }
+}

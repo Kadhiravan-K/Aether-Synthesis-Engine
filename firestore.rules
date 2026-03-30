@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: /users/{userId}
+    // Document ID: userId
+    // Fields:
+    //   - displayName: string (required)
+    //   - aestheticProfile: map (optional)
+    //   - updatedAt: timestamp (required)
+    //
+    // Collection: /users/{userId}/syntheses/{synthesisId}
+    // Document ID: auto-generated
+    // Fields:
+    //   - userId: string (required)
+    //   - prompt: string (required)
+    //   - mode: string (required, enum: concept, visual, sonic, kinetic, harmonic)
+    //   - result: string (required)
+    //   - metadata: map (optional)
+    //   - createdAt: timestamp (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['displayName', 'updatedAt']) &&
+             data.displayName is string &&
+             data.updatedAt is timestamp;
+    }
+
+    function isValidSynthesis(data) {
+      return data.keys().hasAll(['userId', 'prompt', 'mode', 'result', 'createdAt']) &&
+             data.userId == request.auth.uid &&
+             data.prompt is string &&
+             data.mode in ['concept', 'visual', 'sonic', 'kinetic', 'harmonic'] &&
+             data.result is string &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) && isValidUserProfile(request.resource.data);
+
+      match /syntheses/{synthesisId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidSynthesis(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
