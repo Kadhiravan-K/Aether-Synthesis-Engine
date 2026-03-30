@@ -1,0 +1,8 @@
+{
+  "name": "Aether Synthesis Engine",
+  "description": "A multimodal creative workstation for synthesizing text, imagery, and soundscapes using advanced generative models.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
